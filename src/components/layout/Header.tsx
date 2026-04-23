@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Facebook, Instagram, Home, X, Menu, Phone, Calendar } from "lucide-react";
-import { TbTooth } from "react-icons/tb";
+import { GiTooth } from "react-icons/gi";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
