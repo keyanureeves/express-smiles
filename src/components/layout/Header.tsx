@@ -1,0 +1,304 @@
+
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { Facebook, Instagram, Home, X, Menu, Phone, Calendar } from "lucide-react";
+import { TbTooth } from "react-icons/tb";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import TikTokIcon from "@/components/icons/TikTokIcon";
+
+type NavItem = {
+  label: string;
+  href: string;
+  isExternal?: boolean;
+};
+
+const Header = () => {
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+
+  const navItems: NavItem[] = [
+    { label: "Services", href: "/#services" },
+    { label: "NRI Corner", href: "/#nri-corner" },
+    { label: "Location", href: "/#location" },
+    { label: "Testimonials", href: "/#testimonials" },
+    { label: "FAQs", href: "/#faqs" },
+    { label: "Blog", href: "/blog" }
+  ];
+
+  // Handle anchor links with smooth scrolling
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    
+    // Close mobile menu if open
+    if (isNavOpen) {
+      setIsNavOpen(false);
+    }
+    
+    // If we're not on the homepage and trying to access an anchor, go to homepage first
+    if (pathname !== '/' && href.startsWith('/#')) {
+      window.location.href = href;
+      return;
+    }
+    
+    // Extract the anchor without the #
+    const anchor = href.replace('/#', '');
+    const element = document.getElementById(anchor);
+    
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      // Update URL without full page reload
+      window.history.pushState(null, '', href);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // If mobile menu is open and click is outside the mobile nav
+      if (isNavOpen && !target.closest('.mobile-nav-container') && !target.closest('button[aria-label="Open menu"]')) {
+        setIsNavOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNavOpen]);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsNavOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isNavOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isNavOpen]);
+
+  const handleBookAppointment = () => {
+    window.open(
+      "https://wa.me/254799909232?text=Hello%2C%20I%E2%80%99d%20like%20to%20book%20an%20appointment%20at%20Express%20Smiles%20Dental%20Suite.%20Please%20let%20me%20know%20the%20available%20slots.%20Thank%20you!",
+      "_blank"
+    );
+    toast.success("Opening WhatsApp to book your appointment");
+  };
+
+  const handleCall = () => {
+    window.location.href = "tel:+254799909232";
+    toast.success("Initiating call to our clinic");
+  };
+
+  return (
+    <>
+      {/* Mobile-first header */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 overflow-x-hidden ${isScrolled ? 'liquid-glass-scrolled' : 'liquid-glass'}`}>
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 md:h-16">
+            {/* Logo */}
+            <Link 
+              href="/" 
+              className="flex items-center gap-2 text-xs sm:text-sm md:text-lg lg:text-xl font-bold text-primary flex-shrink-0"
+            >
+              <span className="text-primary">🦷</span>
+              <span className="hidden sm:inline truncate">Express Smiles Dental Suite</span>
+              <span className="sm:hidden">Express Smiles</span>
+            </Link>
+
+            {/* Mobile hamburger menu button */}
+            <button
+              className="lg:hidden p-1 sm:p-2 rounded-md hover:bg-accent transition-colors flex-shrink-0"
+              onClick={() => setIsNavOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+              <Link 
+                href="/"
+                className="text-sm text-foreground/80 hover:text-primary transition-colors font-medium flex items-center gap-1"
+                aria-label="Home"
+              >
+                <Home className="h-4 w-4" />
+              </Link>
+              {navItems.map((item, index) => (
+                item.href.includes('#') ? (
+                  <a 
+                    key={index}
+                    href={item.href}
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary",
+                      (item.href.startsWith('/#') || item.href === '/blog')
+                        ? (pathname === '/' ? 'text-primary' : 'text-gray-600')
+                        : pathname === item.href ? 'text-primary' : 'text-gray-600'
+                    )}
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                <Link 
+                  key={index}
+                  href={item.href}
+                  className={cn(
+                    "text-sm font-medium transition-colors hover:text-primary",
+                    (item.href.startsWith('/#') || item.href === '/blog')
+                      ? (pathname === '/' ? 'text-primary' : 'text-gray-600')
+                      : pathname === item.href ? 'text-primary' : 'text-gray-600'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              )
+              ))}
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile navigation drawer */}
+      <nav
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-background z-50 transform transition-transform duration-300 ease-out lg:hidden ${
+          isNavOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Drawer header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <span className="text-lg font-bold text-primary">Menu</span>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => setIsNavOpen(false)}
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Navigation links */}
+          <div className="flex-1 overflow-y-auto py-4">
+            <div className="px-4 space-y-1">
+              <Link
+                href="/"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-accent transition-colors"
+                onClick={() => setIsNavOpen(false)}
+              >
+                <Home className="h-5 w-5 text-primary" />
+                <span className="font-medium">Home</span>
+              </Link>
+
+              {navItems.map((item, index) => (
+                item.href.includes('#') ? (
+                  <a
+                    key={index}
+                    href={item.href}
+                    onClick={(e) => handleAnchorClick(e, item.href)}
+                    className="flex items-center justify-between px-4 py-3 rounded-lg text-foreground hover:bg-accent transition-colors"
+                  >
+                    <span className="font-medium">{item.label}</span>
+                  </a>
+                ) : (
+                  <Link
+                    key={index}
+                    href={item.href}
+                    className="flex items-center justify-between px-4 py-3 rounded-lg text-foreground hover:bg-accent transition-colors"
+                    onClick={() => setIsNavOpen(false)}
+                  >
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                )
+              ))}
+
+              <div className="pt-4 mt-4 border-t">
+                <a
+                  href="https://www.facebook.com/people/Express-Smiles-Dental-Suite/61556958884031/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-accent transition-colors"
+                >
+                  <Facebook className="h-5 w-5 text-[#1877F2]" />
+                  <span className="font-medium">Follow on Facebook</span>
+                </a>
+                <a
+                  href="https://www.instagram.com/express_smiles_dentalsuite?igsh=NzNxa2x1cGJoYnFi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-accent transition-colors"
+                >
+                  <Instagram className="h-5 w-5 text-[#E4405F]" />
+                  <span className="font-medium">Follow on Instagram</span>
+                </a>
+                <a
+                  href="https://www.tiktok.com/@express.smiles?_r=1&_t=ZS-95aWXQVeT3t"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-accent transition-colors"
+                >
+                  <TikTokIcon className="h-5 w-5" />
+                  <span className="font-medium">Follow on TikTok</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA section */}
+          <div className="p-4 border-t space-y-2 bg-muted/30">
+            <Button
+              className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-semibold h-12"
+              onClick={() => {
+                handleBookAppointment();
+                setIsNavOpen(false);
+              }}
+            >
+              <WhatsAppIcon className="h-5 w-5 mr-2" />
+              Book on WhatsApp
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full h-12 font-semibold"
+              onClick={() => {
+                handleCall();
+                setIsNavOpen(false);
+              }}
+            >
+              <Phone className="h-5 w-5 mr-2" />
+              Call +254 799 909 232
+            </Button>
+          </div>
+        </div>
+      </nav>
+    </>
+  );
+};
+
+export default Header;

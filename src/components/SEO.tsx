@@ -1,0 +1,115 @@
+
+import { Helmet } from 'react-helmet-async';
+import { usePathname } from 'next/navigation';
+
+interface SEOProps {
+  title?: string;
+  description?: string;
+  image?: string;
+  article?: boolean;
+  keywords?: string;
+  canonicalUrl?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  authorName?: string;
+}
+
+const SEO = ({
+  title = "Dentist in Nairobi | Best Dental Clinic Near You | Express Smiles Dental Suite",
+  description = "Looking for a trusted dentist in Nairobi? Express Smiles Dental Suite offers expert dental care including implants, braces, root canal, teeth whitening, and emergency dental services. Modern technology, and a caring team. Book your appointment today!",
+  image = "/og-image.jpg", 
+  article = false,
+  keywords = "dentist in nairobi, nairobi dentist, dental clinic in nairobi, best dentist nairobi, dentist near me nairobi, affordable dentist nairobi, teeth whitening nairobi, root canal nairobi, dental implants nairobi, orthodontist nairobi, kids dentist nairobi, emergency dentist nairobi, dental clinic nairobi, tooth extraction nairobi, dental checkup nairobi",
+  canonicalUrl,
+  publishedTime,
+  modifiedTime,
+  authorName = "Express Smiles Dental Suite"
+}: SEOProps) => {
+  const pathname = usePathname();
+  const siteUrl = "https://expresssmilesdental.com";
+  const url = canonicalUrl || `${siteUrl}${pathname}`;
+
+  // Ensure image URL is absolute - fixed to use the proper domain
+  let absoluteImageUrl = image;
+  if (!image.startsWith('http')) {
+    absoluteImageUrl = `${siteUrl}${image.startsWith('/') ? '' : '/'}${image}`;
+  }
+  
+  // Default dimensions for the OG image - important for proper previews
+  const imageWidth = "1200";
+  const imageHeight = "630";
+  const imageType = "image/jpeg";
+  const imageAlt = title;
+
+  // Facebook App ID - replace with your actual Facebook App ID
+  const fbAppId = "1683230922584242";
+  
+  return (
+    <Helmet>
+      {/* Basic Meta Tags */}
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <link rel="canonical" href={url} />
+      
+      {/* Open Graph / Facebook */}
+      <meta property="fb:app_id" content={fbAppId} />
+      <meta property="og:type" content={article ? "article" : "website"} />
+      <meta property="og:url" content={url} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={absoluteImageUrl} />
+      <meta property="og:image:secure_url" content={absoluteImageUrl} />
+      <meta property="og:image:width" content={imageWidth} />
+      <meta property="og:image:height" content={imageHeight} />
+      <meta property="og:image:type" content={imageType} />
+      <meta property="og:image:alt" content={imageAlt} />
+      <meta property="og:site_name" content="Express Smiles Dental Suite" />
+      <meta property="og:locale" content="en_KE" />
+      
+      {/* Twitter Card Tags */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@dentalsolutionspalghar" />
+      <meta name="twitter:creator" content="@dentalsolutionspalghar" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={absoluteImageUrl} />
+      <meta name="twitter:image:alt" content={imageAlt} />
+      <meta name="twitter:domain" content={siteUrl} />
+      
+      {/* WhatsApp specific */}
+      <meta property="og:image" content={absoluteImageUrl} />
+      <meta property="og:image:secure_url" content={absoluteImageUrl} />
+      
+      {/* Article specific meta tags */}
+      {article && (
+        <>
+          {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+          {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+          {authorName && <meta property="article:author" content={authorName} />}
+        </>
+      )}
+      
+      {/* Additional iOS and Android app banner meta tags */}
+      <meta name="apple-itunes-app" content="app-id=yourAppStoreID, affiliate-data=yourAffiliateData, app-argument=yourAppArgument" />
+      <meta name="google-play-app" content="app-id=yourPackageName" />
+      
+      {/* Robots and Canonical */}
+      <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+      <link rel="canonical" href={url} />
+      
+      {/* Geo Tags */}
+      <meta name="geo.region" content="KE-01" />
+      <meta name="geo.placename" content="Nairobi" />
+      <meta name="geo.position" content="-1.300684;36.8251051" />
+      <meta name="ICBM" content="-1.300684, 36.8251051" />
+      
+      {/* Additional Performance Tags */}
+      <link rel="preconnect" href="https://fonts.gstatic.com" />
+      <link rel="preconnect" href="https://www.googletagmanager.com" />
+      <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    </Helmet>
+  );
+};
+
+export default SEO;
